@@ -1,0 +1,10 @@
+.cursor
+.vscode
+.claude
+
+__pycache__/*
+*.pyc
+dist
+build
+*.bak
+
