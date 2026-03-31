@@ -208,7 +208,8 @@ A manager or admin views an MVP reporting dashboard that shows summary
 metrics for their tenant: total contacts created (with a trend indicator
 for the current period), deals grouped by pipeline stage with total value
 per stage, total open pipeline value, and a count of overdue tasks. The
-dashboard auto-refreshes or provides a manual refresh action. Viewers can
+dashboard provides a manual refresh action (no auto-refresh or live push
+for MVP). Viewers can
 see the dashboard but cannot modify data from it.
 
 **Why this priority**: Reporting provides visibility into CRM health but
@@ -272,6 +273,11 @@ renders correctly with zero data.
 - Q: Can deals skip stages or move backward among open stages? → A: Free movement among open stages (skip forward or move backward between Qualification/Proposal/Negotiation). Closed deals (Won/Lost) cannot reopen.
 - Q: Is removal archive-only (soft delete) or does hard deletion exist? → A: Archive only. All removal is soft-delete via an archived flag. No application-level hard delete for any entity.
 - Q: Should dashboard metrics be tenant-wide or scoped to the viewing user's own records? → A: Tenant-wide metrics for all roles. Dashboard always shows full tenant totals regardless of viewer's role.
+- Q: Does the MVP require real-time UI updates or manual refresh? → A: Manual refresh only. Data fetched on page load/navigation; dashboard has explicit Refresh button; no WebSocket/SSE live push updates.
+- Q: Does any MVP workflow require background jobs? → A: Yes, two: (1) audit log writes dispatched async to avoid write-path latency, and (2) dashboard metrics precomputed via a scheduled background job.
+- Q: What search mechanism for list views — database-level or external engine? → A: Database-level case-insensitive substring matching (e.g., ILIKE or trigram index). No external search engine for MVP.
+- Q: Pagination style — offset-based or cursor-based? → A: Offset-based (`?page=N&page_size=N`). Supports direct page jumps for table UIs.
+- Q: Can tasks skip statuses or move backward (e.g., Done → In Progress)? → A: Free movement. Tasks can move to any status — skip forward, move backward, and reopen from Done are all permitted.
 
 ## Requirements *(mandatory)*
 
@@ -300,13 +306,19 @@ renders correctly with zero data.
 - **FR-008**: System MUST allow CRUD operations on tasks with fields: title,
   description, due date, priority (low/medium/high), status (to_do,
   in_progress, done), assignee (user), linked contact, linked deal.
+  Tasks MAY move freely between any statuses — forward skips (To Do →
+  Done), backward moves (Done → In Progress), and reopening from Done
+  are all permitted.
 - **FR-009**: System MUST display an MVP reporting dashboard with: contact
   count, deals by stage with total values, open pipeline value, overdue
   task count. Dashboard metrics MUST reflect tenant-wide totals for all
   roles (not scoped to the viewing user's own records).
 - **FR-010**: System MUST support search (by name, email) and filtering
   (by status, company, industry, stage, assignee, date range) on all list
-  views.
+  views. Search MUST use database-level case-insensitive substring matching
+  (e.g., ILIKE or trigram index) against indexed columns. No external
+  search engine is required for MVP. All filtering MUST be server-side
+  via query parameters.
 - **FR-011**: System MUST display appropriate empty states, loading
   indicators, and actionable error messages for all user-facing views.
 - **FR-012**: System MUST support association between entities: contacts ↔
@@ -315,14 +327,32 @@ renders correctly with zero data.
   deals (optional).
 - **FR-013**: Destructive actions (archive, close-as-lost) MUST require
   user confirmation before execution.
-- **FR-014**: System MUST support pagination on all list endpoints with a
-  configurable page size (default 25, max 100).
+- **FR-014**: System MUST support offset-based pagination on all list
+  endpoints (`?page=N&page_size=N`) with a configurable page size
+  (default 25, max 100). API responses MUST include total count and
+  total pages to enable direct page navigation in the UI.
 - **FR-015**: The system MUST NOT support hard deletion of any business
   entity (contact, company, deal, task) through application-level
   operations. All removal MUST be soft-delete via an `archived` flag.
   Archived records MUST remain queryable for audit, reporting, and
-  referential integrity. Archived records MUST be excluded from default
+  referential integrity.   Archived records MUST be excluded from default
   list views but visible via an "Archived" filter.
+- **FR-016**: The MVP MUST use a manual-refresh data-fetching pattern:
+  data is fetched on page load or navigation, and the dashboard provides
+  an explicit "Refresh" button. Real-time push updates (WebSocket, SSE,
+  or polling) are out of scope for MVP.
+- **FR-017**: Audit log writes MUST be dispatched asynchronously (via a
+  background job queue) to avoid adding latency to the primary write
+  path. The job MUST carry tenant context per TI-005. If the job queue
+  is temporarily unavailable, the system MUST NOT fail the primary
+  operation; audit writes MUST be retried or buffered.
+- **FR-018**: Dashboard metrics (contact count, deals by stage, open
+  pipeline value, overdue task count) MUST be precomputed by a scheduled
+  background job at a configurable interval (default: every 5 minutes).
+  The dashboard MUST read from the precomputed snapshot. The Refresh
+  button MUST trigger a fresh read of the latest snapshot, not a
+  live aggregation query. The scheduled job MUST carry tenant context
+  per TI-005 and iterate across all active tenants.
 
 ### Tenant Isolation Requirements
 
@@ -445,8 +475,9 @@ renders correctly with zero data.
   by automated cross-tenant isolation tests.
 - **SC-006**: All RBAC rules (SEC-001 matrix) pass automated integration
   tests covering every operation × role combination.
-- **SC-007**: Dashboard metrics are accurate within 1 second of the last
-  committed transaction when manually refreshed.
+- **SC-007**: Dashboard metrics are accurate to the most recent
+  precomputed snapshot (default interval: 5 minutes). The Refresh
+  button returns the latest snapshot within 500ms at p95.
 - **SC-008**: Empty states, loading indicators, and error messages are
   present on every list view, detail view, and dashboard widget — verified
   by UI test or manual checklist.
