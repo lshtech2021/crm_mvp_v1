@@ -31,7 +31,31 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Align with `.specify/memory/constitution.md` (CRM MVP). Verify:
+
+- **Code Quality & Maintainable Architecture**: Lint/format strategy defined or marked NEEDS
+  CLARIFICATION; no unjustified new abstraction layers; modular layer separation maintained;
+  Complexity Tracking filled if gates are violated.
+- **Testing Rigor**: Test approach matches risk (unit, integration, E2E); regression-prone areas
+  identified; contract/integration boundaries covered when features cross services or I/O;
+  critical user flows have multi-layer coverage plan.
+- **Multi-Tenant Isolation**: Tenant scoping strategy defined for all data access; tenant context
+  propagation mechanism identified; background jobs and events addressed; cross-tenant access
+  explicitly prevented or marked NEEDS CLARIFICATION.
+- **Security & Role-Based Authorization**: RBAC enforcement points identified for protected
+  operations; input validation strategy stated; secrets management approach confirmed; dependency
+  vulnerability scanning in CI or marked NEEDS CLARIFICATION.
+- **Accessibility & Predictable UX**: UX patterns and error/loading/empty-state behavior
+  consistent with product unless spec documents an exception; WCAG 2.1 AA targets stated for
+  UI work; keyboard and screen reader considerations noted.
+- **Auditability**: Key business actions identified for audit logging; audit record schema
+  (actor, tenant, timestamp, action, outcome) planned; retention and query requirements stated
+  or marked NEEDS CLARIFICATION.
+- **Spec-Driven Development & Incremental Delivery**: Feature spec exists and includes testable
+  scenarios and success criteria; work decomposes into independently testable increments; CI
+  gates defined; traceability from tasks to spec requirements confirmed.
+- **AI-Assisted Implementation Discipline**: If AI assistance is planned, bounded task scopes
+  defined; architectural preservation strategy noted; requirement invention guardrails in place.
 
 ## Project Structure
 

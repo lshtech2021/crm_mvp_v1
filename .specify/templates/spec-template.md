@@ -80,6 +80,13 @@
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right functional requirements.
+  Per `.specify/memory/constitution.md`, include:
+  - Non-functional expectations for UX consistency and performance where the feature is
+    user-facing or latency/resource sensitive (see also Success Criteria and Assumptions).
+  - Tenant isolation requirements: how data is scoped, tenant context propagation.
+  - Security & authorization requirements: RBAC enforcement, input validation.
+  - Auditability requirements: which business actions produce audit records.
+  Include these as separate requirement categories when applicable.
 -->
 
 ### Functional Requirements
@@ -89,6 +96,21 @@
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+
+### Tenant Isolation Requirements *(include if feature touches tenant data)*
+
+- **TI-001**: System MUST [tenant scoping, e.g., "scope all contact queries to the current tenant"]
+- **TI-002**: System MUST [isolation guarantee, e.g., "prevent cross-tenant data access via API"]
+
+### Security & Authorization Requirements *(include if feature has protected operations)*
+
+- **SEC-001**: System MUST [authorization, e.g., "enforce role-based access on contact CRUD"]
+- **SEC-002**: System MUST [input validation, e.g., "validate and sanitize all form inputs"]
+
+### Audit Requirements *(include if feature involves key business actions)*
+
+- **AUD-001**: System MUST [audit, e.g., "log contact creation with actor, tenant, and timestamp"]
+- **AUD-002**: System MUST [audit query, e.g., "support querying audit log by tenant and time range"]
 
 *Example of marking unclear requirements:*
 
@@ -113,6 +135,10 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+Include **UX consistency** (e.g., task completion rate, error recovery) and **performance**
+(e.g., p95 response time, time-to-interactive) criteria when applicable, per the project
+constitution.
 
 ## Assumptions
 

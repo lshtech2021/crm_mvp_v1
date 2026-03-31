@@ -8,7 +8,15 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Include automated test tasks when the feature specification or
+`.specify/memory/constitution.md` requires coverage for acceptance criteria or regression-prone
+behavior. Critical user flows MUST have unit, integration, and E2E coverage per constitution
+Principle II. Omit test tasks only when the spec explicitly defers testing and the constitution
+allows it for that scope.
+
+**Cross-Cutting**: For features touching protected data or operations, include tasks for tenant
+isolation enforcement (Principle III), RBAC authorization checks (Principle IV), and audit
+logging (Principle VI). These are non-optional when the constitution applies.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -152,9 +160,13 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
-- [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
-- [ ] TXXX Security hardening
+- [ ] TXXX Performance verification against plan/spec budgets (constitution: no undocumented regression)
+- [ ] TXXX [P] Additional unit tests in tests/unit/ where gaps vs acceptance criteria remain
+- [ ] TXXX UX consistency & accessibility pass (patterns, errors, loading/empty states, keyboard nav, screen reader) against spec
+- [ ] TXXX Tenant isolation verification (unscoped queries audit, cross-tenant access test)
+- [ ] TXXX Security hardening (RBAC enforcement review, input validation, secrets audit)
+- [ ] TXXX Audit logging verification (key actions covered, records immutable, PII policy compliant)
+- [ ] TXXX Spec traceability check (all tasks trace to spec requirements; no unspecified work)
 - [ ] TXXX Run quickstart.md validation
 
 ---
