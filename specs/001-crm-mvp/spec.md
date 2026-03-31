@@ -263,6 +263,16 @@ renders correctly with zero data.
 - What happens when a search query returns zero results? The system MUST
   display a "No results found" message with a suggestion to adjust filters.
 
+## Clarifications
+
+### Session 2026-03-31
+
+- Q: Can reps see all tenant records or only their own? → A: Reps see all tenant records (read-all) but can only create/update own records (write-own).
+- Q: What defines record ownership for rep write permissions? → A: owner_id/assignee_id when the field exists, else created_by. Reassignment transfers edit rights for deals and tasks; contacts/companies stay with creator.
+- Q: Can deals skip stages or move backward among open stages? → A: Free movement among open stages (skip forward or move backward between Qualification/Proposal/Negotiation). Closed deals (Won/Lost) cannot reopen.
+- Q: Is removal archive-only (soft delete) or does hard deletion exist? → A: Archive only. All removal is soft-delete via an archived flag. No application-level hard delete for any entity.
+- Q: Should dashboard metrics be tenant-wide or scoped to the viewing user's own records? → A: Tenant-wide metrics for all roles. Dashboard always shows full tenant totals regardless of viewer's role.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -282,15 +292,18 @@ renders correctly with zero data.
 - **FR-006**: System MUST allow CRUD operations on deals with fields: name,
   value (currency), expected close date, pipeline stage, owner (user),
   company association, primary contact association.
-- **FR-007**: System MUST enforce pipeline stages in order: Qualification →
-  Proposal → Negotiation → Closed Won / Closed Lost. Deals MUST NOT move
-  backward from a Closed state.
+- **FR-007**: System MUST support pipeline stages: Qualification, Proposal,
+  Negotiation, Closed Won, Closed Lost. Deals MAY move freely among open
+  stages (Qualification, Proposal, Negotiation) — forward skips and backward
+  moves are permitted. Deals in a Closed state (Won or Lost) MUST NOT be
+  reopened or moved to any other stage.
 - **FR-008**: System MUST allow CRUD operations on tasks with fields: title,
   description, due date, priority (low/medium/high), status (to_do,
   in_progress, done), assignee (user), linked contact, linked deal.
 - **FR-009**: System MUST display an MVP reporting dashboard with: contact
   count, deals by stage with total values, open pipeline value, overdue
-  task count.
+  task count. Dashboard metrics MUST reflect tenant-wide totals for all
+  roles (not scoped to the viewing user's own records).
 - **FR-010**: System MUST support search (by name, email) and filtering
   (by status, company, industry, stage, assignee, date range) on all list
   views.
@@ -304,6 +317,12 @@ renders correctly with zero data.
   user confirmation before execution.
 - **FR-014**: System MUST support pagination on all list endpoints with a
   configurable page size (default 25, max 100).
+- **FR-015**: The system MUST NOT support hard deletion of any business
+  entity (contact, company, deal, task) through application-level
+  operations. All removal MUST be soft-delete via an `archived` flag.
+  Archived records MUST remain queryable for audit, reporting, and
+  referential integrity. Archived records MUST be excluded from default
+  list views but visible via an "Archived" filter.
 
 ### Tenant Isolation Requirements
 
@@ -327,11 +346,15 @@ renders correctly with zero data.
   | Operation | Admin | Manager | Rep | Viewer |
   |-----------|-------|---------|-----|--------|
   | Create any entity | ✅ | ✅ | ✅ (own) | ❌ |
-  | Read any entity | ✅ | ✅ | ✅ | ✅ |
+  | Read any entity | ✅ | ✅ | ✅ (all tenant) | ✅ |
   | Update any entity | ✅ | ✅ | ✅ (own) | ❌ |
   | Archive any entity | ✅ | ✅ | ❌ | ❌ |
   | Manage users/roles | ✅ | ❌ | ❌ | ❌ |
   | View reports | ✅ | ✅ | ✅ | ✅ |
+
+  Reps have full read visibility across all tenant records but can only
+  create and update records they own. "Own" is defined per entity — see
+  SEC-008.
 
 - **SEC-002**: Authorization MUST be enforced server-side; client-side
   visibility controls MUST NOT be the sole enforcement mechanism.
@@ -346,6 +369,20 @@ renders correctly with zero data.
   default 15 minutes for access tokens) with refresh token rotation.
 - **SEC-007**: API rate limiting MUST be applied to authentication
   endpoints to prevent brute-force attacks.
+- **SEC-008**: Rep ownership for write-permission checks MUST be
+  resolved per entity as follows:
+
+  | Entity | Ownership field | Fallback |
+  |--------|----------------|----------|
+  | Deal | `owner_id` | — |
+  | Task | `assignee_id` | — |
+  | Contact | `created_by` | — |
+  | Company | `created_by` | — |
+
+  When a deal or task is reassigned, write permission transfers to the
+  new owner/assignee; the original creator loses write access unless
+  they are also the current owner/assignee. Admins and managers are
+  not subject to ownership restrictions.
 
 ### Audit Requirements
 
@@ -380,12 +417,13 @@ renders correctly with zero data.
 - **Deal**: A sales opportunity. Key attributes: name, value (decimal),
   expected_close_date, stage (enum: qualification/proposal/negotiation/
   closed_won/closed_lost), close_date, loss_reason, owner_id (FK to User),
-  company_id (FK), primary_contact_id (FK), tenant_id, created_by,
-  version (for optimistic concurrency), updated_at.
+  company_id (FK), primary_contact_id (FK), tenant_id, archived (boolean),
+  created_by, version (for optimistic concurrency), updated_at.
 - **Task**: A follow-up action item. Key attributes: title, description,
   due_date, priority (low/medium/high), status (to_do/in_progress/done),
   assignee_id (FK to User), contact_id (optional FK), deal_id (optional
-  FK), tenant_id, completed_at, created_by, updated_at.
+  FK), tenant_id, archived (boolean), completed_at, created_by,
+  updated_at.
 - **AuditLog**: An immutable record of a business action. Key attributes:
   actor_id, actor_role, tenant_id, timestamp, action_type, entity_type,
   entity_id, changes (JSON: old/new values), ip_address.
