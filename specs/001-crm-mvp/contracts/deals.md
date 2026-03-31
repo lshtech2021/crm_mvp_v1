@@ -93,7 +93,7 @@
 | 403 | Unauthorized |
 | 422 | Invalid filters |
 
-**Roles:** `admin`, `manager`, `rep` (tenant-scoped).
+**Roles:** `admin`, `manager`, `rep`, `viewer` (tenant-scoped).
 
 ---
 
@@ -128,7 +128,7 @@
 | 403 | Access denied |
 | 404 | Deal not found |
 
-**Roles:** `admin`, `manager`, `rep`.
+**Roles:** `admin`, `manager`, `rep`, `viewer`.
 
 ---
 
@@ -232,6 +232,27 @@
 
 ---
 
+## POST /api/deals/:id/unarchive
+
+**Description:** Restore an archived deal.
+
+**Path params:** `id` (uuid).
+
+**Request body:** None (or empty object).
+
+**Response:** `200 OK` — unarchived deal.
+
+| Status | Condition |
+|--------|-----------|
+| 401 | Unauthenticated |
+| 403 | Not admin or manager |
+| 404 | Deal not found |
+| 422 | Not archived |
+
+**Roles:** `admin`, `manager` only.
+
+---
+
 ## GET /api/deals/pipeline
 
 **Description:** Deals grouped by stage with **count** and **sum of values** per stage (tenant scope). Each stage group includes the deal rows used for aggregation (same fields as list items or a documented summary shape).
@@ -268,4 +289,4 @@
 | 401 | Unauthenticated |
 | 403 | Unauthorized |
 
-**Roles:** `admin`, `manager`, `rep`.
+**Roles:** `admin`, `manager`, `rep`, `viewer`.

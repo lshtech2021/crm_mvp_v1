@@ -86,7 +86,7 @@
 | 403 | Unauthorized for tenant |
 | 422 | Invalid filter or pagination |
 
-**Roles:** `admin`, `manager`, `rep`.
+**Roles:** `admin`, `manager`, `rep`, `viewer`.
 
 ---
 
@@ -104,7 +104,7 @@
 | 403 | Wrong tenant or role denied |
 | 404 | Company not found |
 
-**Roles:** `admin`, `manager`, `rep`.
+**Roles:** `admin`, `manager`, `rep`, `viewer`.
 
 ---
 

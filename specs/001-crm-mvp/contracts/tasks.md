@@ -101,7 +101,7 @@
 | 403 | Unauthorized |
 | 422 | Invalid filter or date range |
 
-**Roles:** `admin`, `manager`, `rep`.
+**Roles:** `admin`, `manager`, `rep`, `viewer`.
 
 ---
 
@@ -119,7 +119,7 @@
 | 403 | Access denied |
 | 404 | Task not found |
 
-**Roles:** `admin`, `manager`, `rep`.
+**Roles:** `admin`, `manager`, `rep`, `viewer`.
 
 ---
 
@@ -187,5 +187,26 @@
 | 403 | Not admin or manager |
 | 404 | Task not found |
 | 422 | Already archived |
+
+**Roles:** `admin`, `manager` only.
+
+---
+
+## POST /api/tasks/:id/unarchive
+
+**Description:** Restore an archived task.
+
+**Path params:** `id` (uuid).
+
+**Request body:** None (or empty object).
+
+**Response:** `200 OK` — unarchived task.
+
+| Status | Condition |
+|--------|-----------|
+| 401 | Unauthenticated |
+| 403 | Not admin or manager |
+| 404 | Task not found |
+| 422 | Not archived |
 
 **Roles:** `admin`, `manager` only.

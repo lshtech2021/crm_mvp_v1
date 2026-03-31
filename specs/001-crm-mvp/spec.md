@@ -205,8 +205,8 @@ changing status, and confirming overdue visual indicators appear correctly.
 ### User Story 6 — Reporting Dashboard (Priority: P6)
 
 A manager or admin views an MVP reporting dashboard that shows summary
-metrics for their tenant: total contacts created (with a trend indicator
-for the current period), deals grouped by pipeline stage with total value
+metrics for their tenant: total contacts created, deals grouped by
+pipeline stage with total value
 per stage, total open pipeline value, and a count of overdue tasks. The
 dashboard provides a manual refresh action (no auto-refresh or live push
 for MVP). Viewers can
@@ -283,8 +283,10 @@ renders correctly with zero data.
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow users to register and authenticate with
-  email and password.
+- **FR-001**: System MUST allow users to authenticate with email and
+  password. User registration and tenant provisioning are admin-only
+  operations (via seed script or direct database access) for MVP;
+  a user-management API is deferred to a future phase.
 - **FR-002**: System MUST establish tenant context from the authenticated
   user's tenant membership at the request boundary (middleware) and
   propagate it to all data-access operations.
@@ -381,6 +383,9 @@ renders correctly with zero data.
   | Archive any entity | ✅ | ✅ | ❌ | ❌ |
   | Manage users/roles | ✅ | ❌ | ❌ | ❌ |
   | View reports | ✅ | ✅ | ✅ | ✅ |
+
+  **Note:** "Manage users/roles" is exercised via CLI seed script or
+  direct database access for MVP. A user-management API is deferred.
 
   Reps have full read visibility across all tenant records but can only
   create and update records they own. "Own" is defined per entity — see

@@ -424,6 +424,16 @@ justification per constitution Principle VII.
 
 ## Incremental Delivery Phases
 
+### Phase Mapping (plan ↔ tasks.md)
+
+| Plan Phase | tasks.md Phase(s) | User Story | Scope |
+|------------|-------------------|------------|-------|
+| Phase 0 | Phase 1 + Phase 2 | US1 | Setup + auth + tenant foundation |
+| Phase 1 | Phase 3 + Phase 4 | US2 + US3 | Contacts + companies |
+| Phase 2 | Phase 5 | US4 | Deals + pipeline |
+| Phase 3 | Phase 6 + Phase 7 | US5 + US6 | Tasks + reporting dashboard |
+| Phase 4 | Phase 8 | — | Hardening + deployment readiness |
+
 ### Phase 0: Platform Foundation
 
 **Goal**: Authenticated users can log in, see an app shell with navigation,

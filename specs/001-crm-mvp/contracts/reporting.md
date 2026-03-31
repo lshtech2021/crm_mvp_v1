@@ -45,4 +45,4 @@
 | 403 | Unauthorized for tenant |
 | 422 | Invalid query values |
 
-**Roles:** All authenticated roles (`admin`, `manager`, `rep`) — tenant-wide read.
+**Roles:** All authenticated roles (`admin`, `manager`, `rep`, `viewer`) — tenant-wide read.
