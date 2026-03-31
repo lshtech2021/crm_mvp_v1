@@ -35,6 +35,7 @@ Align with `.specify/memory/constitution.md` (CRM MVP). Verify:
 
 - **Code Quality & Maintainable Architecture**: Lint/format strategy defined or marked NEEDS
   CLARIFICATION; no unjustified new abstraction layers; modular layer separation maintained;
+  async/background job usage justified by product or operational need (synchronous by default);
   Complexity Tracking filled if gates are violated.
 - **Testing Rigor**: Test approach matches risk (unit, integration, E2E); regression-prone areas
   identified; contract/integration boundaries covered when features cross services or I/O;
@@ -53,7 +54,8 @@ Align with `.specify/memory/constitution.md` (CRM MVP). Verify:
   or marked NEEDS CLARIFICATION.
 - **Spec-Driven Development & Incremental Delivery**: Feature spec exists and includes testable
   scenarios and success criteria; work decomposes into independently testable increments; CI
-  gates defined; traceability from tasks to spec requirements confirmed.
+  gates defined; traceability from tasks to spec requirements confirmed; frontend and backend
+  changes aligned with approved specification (no cross-layer drift).
 - **AI-Assisted Implementation Discipline**: If AI assistance is planned, bounded task scopes
   defined; architectural preservation strategy noted; requirement invention guardrails in place.
 

@@ -1,23 +1,16 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 2.0.0
+- Version change: 2.0.0 → 2.1.0
 - Modified principles:
-  - I. Code Quality → I. Code Quality & Maintainable Architecture (expanded)
-  - II. Testing Standards → II. Testing Rigor (expanded with e2e mandate)
-  - III. User Experience Consistency → V. Accessibility & Predictable UX (renumbered, expanded)
-  - IV. Performance Requirements → removed as standalone principle (folded into Non-Functional Standards)
+  - I. Code Quality & Maintainable Architecture — added async/background job justification rule
+  - VII. Spec-Driven Development & Incremental Delivery — added frontend-backend spec alignment rule
 - Added sections:
-  - III. Multi-Tenant Isolation (new principle)
-  - IV. Security & Role-Based Authorization (new principle)
-  - VI. Auditability (new principle)
-  - VII. Spec-Driven Development & Incremental Delivery (new principle)
-  - VIII. AI-Assisted Implementation Discipline (new principle)
-- Removed sections:
-  - IV. Performance Requirements (content preserved in Non-Functional Standards)
+  - Non-Functional Standards: Asynchronous Infrastructure bullet
+- Removed sections: None
 - Templates requiring updates:
-  - .specify/templates/plan-template.md — ✅ updated (Constitution Check expanded to 8 principles)
-  - .specify/templates/spec-template.md — ✅ updated (tenant, security, audit requirements guidance added)
-  - .specify/templates/tasks-template.md — ✅ updated (tenant isolation, security, audit task types added)
+  - .specify/templates/plan-template.md — ✅ updated (Constitution Check: async justification + cross-layer alignment)
+  - .specify/templates/spec-template.md — ✅ no change (already covers cross-layer requirements)
+  - .specify/templates/tasks-template.md — ✅ no change (async justification is plan-level, not task-level)
   - .specify/templates/checklist-template.md — ✅ no change (generic)
   - .specify/templates/agent-file-template.md — ✅ no change (generic)
   - .specify/templates/commands/*.md — ⚠ not present (no files to update)
@@ -45,10 +38,16 @@ Sync Impact Report
   direction. Circular dependencies MUST NOT be introduced.
 - Shared utilities and cross-cutting concerns MUST be extracted into
   well-defined modules rather than duplicated across features.
+- Asynchronous workflows and background job infrastructure MUST NOT
+  be introduced without documented product or operational
+  justification in the plan or PR; synchronous request-response
+  MUST be the default execution model.
 
 **Rationale**: Predictable structure, enforced style, and modular
 architecture reduce defects, review load, and onboarding cost as the
-CRM scales across tenants and teams.
+CRM scales across tenants and teams. Defaulting to synchronous
+execution keeps the system debuggable and prevents premature
+infrastructure complexity.
 
 ### II. Testing Rigor
 
@@ -173,11 +172,16 @@ dispute resolution, and security incident investigation.
 - Plans and task lists MUST trace back to specification requirements;
   implementation work without a corresponding spec requirement MUST
   be flagged and justified.
+- Frontend and backend implementation changes MUST remain aligned
+  with the approved specification; cross-layer deviations (e.g.,
+  API contract changes without spec update, UI behavior diverging
+  from acceptance scenarios) MUST be reconciled before merge.
 
 **Rationale**: Spec-driven development prevents scope creep, ensures
 shared understanding before investment, and creates a verifiable
-chain from requirement to implementation. Incremental delivery
-reduces risk and enables early feedback.
+chain from requirement to implementation. Requiring cross-layer
+alignment prevents frontend and backend from drifting apart.
+Incremental delivery reduces risk and enables early feedback.
 
 ### VIII. AI-Assisted Implementation Discipline
 
@@ -218,6 +222,12 @@ keep AI contributions aligned with project intent.
 - **Data Integrity**: Database migrations MUST be backward-compatible
   or include a documented rollback strategy; data loss MUST NOT occur
   during schema changes.
+- **Asynchronous Infrastructure**: Background job queues, event buses,
+  and scheduled tasks MUST NOT be introduced unless the plan or PR
+  documents a concrete product or operational need (e.g., long-running
+  report generation, webhook delivery). When used, jobs MUST carry
+  tenant context per Principle III and produce audit records per
+  Principle VI where applicable.
 
 ## Development Workflow & Quality Gates
 
@@ -259,4 +269,4 @@ keep AI contributions aligned with project intent.
   this constitution with the same rigor as human-driven workflows;
   AI-specific deviations MUST be documented and reviewed.
 
-**Version**: 2.0.0 | **Ratified**: 2026-03-31 | **Last Amended**: 2026-03-31
+**Version**: 2.1.0 | **Ratified**: 2026-03-31 | **Last Amended**: 2026-03-31
